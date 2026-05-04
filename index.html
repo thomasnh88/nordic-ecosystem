@@ -19,6 +19,8 @@
   --angel: #f5d87a;
   --operator: #6eddb0;
   --scout: #b8a0f4;
+  --community: #f97c4a;
+  --studio: #4af0f4;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -100,6 +102,8 @@ select option { background: var(--bg3); }
 .chip[data-cat="Angel"].active { background: var(--angel); }
 .chip[data-cat="Operator"].active { background: var(--operator); }
 .chip[data-cat="Scout"].active { background: var(--scout); }
+.chip[data-cat="Community"].active { background: var(--community); }
+.chip[data-cat="Studio"].active { background: var(--studio); }
 
 /* CONTACT CARDS */
 .clist { display: flex; flex-direction: column; gap: 7px; }
@@ -186,6 +190,8 @@ select option { background: var(--bg3); }
         <option value="">Select category</option>
         <option>VC</option><option>Founder</option><option>Angel</option>
         <option>Operator</option><option>Scout</option>
+        <option value="Community">Community / Events</option>
+        <option value="Studio">Venture Studio</option>
       </select>
     </div>
     <div class="fg"><label>City *</label>
@@ -210,6 +216,8 @@ select option { background: var(--bg3); }
         <div class="chip" data-cat="Angel" onclick="filterCat('Angel')">Angel</div>
         <div class="chip" data-cat="Operator" onclick="filterCat('Operator')">Operator</div>
         <div class="chip" data-cat="Scout" onclick="filterCat('Scout')">Scout</div>
+        <div class="chip" data-cat="Community" onclick="filterCat('Community')">Community</div>
+        <div class="chip" data-cat="Studio" onclick="filterCat('Studio')">Venture Studio</div>
       </div>
     </div>
     <div class="clist" id="clist">
@@ -235,13 +243,16 @@ select option { background: var(--bg3); }
     <div class="li"><div class="ld" style="background:#f5d87a"></div>Angel</div>
     <div class="li"><div class="ld" style="background:#6eddb0"></div>Operator</div>
     <div class="li"><div class="ld" style="background:#b8a0f4"></div>Scout</div>
+    <div class="li"><div class="ld" style="background:#f97c4a"></div>Community / Events</div>
+    <div class="li"><div class="ld" style="background:#4af0f4"></div>Venture Studio</div>
   </div>
 </div>
 
 <script>
 const CAT_COLORS = {
   VC: '#7eb8f7', Founder: '#f4a0c0', Angel: '#f5d87a',
-  Operator: '#6eddb0', Scout: '#b8a0f4'
+  Operator: '#6eddb0', Scout: '#b8a0f4',
+  Community: '#f97c4a', Studio: '#4af0f4'
 };
 
 // City hub positions (as fractions of canvas, set on resize)
