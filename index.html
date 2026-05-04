@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thomas · Nordic Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090d;
+  --bg2: #0e1018;
+  --bg3: #151720;
+  --border: rgba(255,255,255,0.06);
+  --text: #dde1ec;
+  --muted: #5a6070;
+  --accent: #e8d5a3;
+  --vc: #7eb8f7;
+  --founder: #f4a0c0;
+  --angel: #f5d87a;
+  --operator: #6eddb0;
+  --scout: #b8a0f4;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 52px 1fr;
+  grid-template-columns: 300px 1fr;
+  overflow: hidden;
+}
+header {
+  grid-column: 1/-1;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+}
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+.logo em { color: var(--accent); font-style: italic; }
+.hstats { display: flex; gap: 20px; }
+.stat { display: flex; align-items: baseline; gap: 5px; }
+.sn { font-family: 'DM Mono', monospace; font-size: 18px; color: var(--accent); }
+.sl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+
+aside {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+.tab {
+  padding: 12px; font-size: 11px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--muted); cursor: pointer; text-align: center;
+  border: none; background: none; transition: all .15s; font-family: 'DM Sans', sans-serif;
+}
+.tab.active { color: var(--accent); border-bottom: 1px solid var(--accent); }
+.tc { display: none; flex: 1; overflow-y: auto; padding: 18px; flex-direction: column; gap: 12px; }
+.tc.active { display: flex; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+input, select {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 8px 11px; outline: none; transition: border-color .15s;
+}
+input:focus, select:focus { border-color: var(--accent); }
+select option { background: var(--bg3); }
+.btn {
+  background: var(--accent); color: #08090d; border: none; border-radius: 5px;
+  padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: opacity .15s; letter-spacing: .01em;
+}
+.btn:hover { opacity: .85; }
+
+/* FILTER SECTION */
+.ftitle { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.chip {
+  padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border); background: transparent;
+  color: var(--muted); transition: all .15s;
+}
+.chip.active { color: #08090d; border-color: transparent; }
+.chip[data-cat="all"].active { background: var(--accent); }
+.chip[data-cat="VC"].active { background: var(--vc); }
+.chip[data-cat="Founder"].active { background: var(--founder); }
+.chip[data-cat="Angel"].active { background: var(--angel); }
+.chip[data-cat="Operator"].active { background: var(--operator); }
+.chip[data-cat="Scout"].active { background: var(--scout); }
+
+/* CONTACT CARDS */
+.clist { display: flex; flex-direction: column; gap: 7px; }
+.card {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 7px;
+  padding: 10px 12px; position: relative; transition: border-color .15s; cursor: pointer;
+}
+.card:hover { border-color: rgba(255,255,255,.12); }
+.ctop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.cn { font-size: 13px; font-weight: 500; }
+.cf { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.cc { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 3px; }
+.cdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.del { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; opacity: 0; padding: 2px 4px; }
+.card:hover .del { opacity: 1; }
+.empty { text-align: center; padding: 28px 14px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.empty span { display: block; font-size: 26px; margin-bottom: 8px; }
+
+/* CITY GROUPS section */
+.city-section { margin-bottom: 4px; }
+.city-header {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--muted); padding: 6px 0 4px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.city-badge {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  background: var(--bg); padding: 1px 6px; border-radius: 10px; color: var(--muted);
+}
+
+/* CANVAS */
+.canvas-wrap { position: relative; overflow: hidden; background: var(--bg); }
+#cvs { width: 100%; height: 100%; display: block; }
+
+/* TOOLTIP */
+#tt {
+  position: absolute; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px 14px; pointer-events: none; opacity: 0;
+  transition: opacity .15s; min-width: 185px; box-shadow: 0 8px 40px rgba(0,0,0,.6); z-index: 10;
+}
+.ttn { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; margin-bottom: 2px; }
+.ttt { font-size: 11px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+.ttc { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 12px; color: #08090d; letter-spacing: .04em; text-transform: uppercase; }
+.ttcity { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 6px; }
+
+/* LEGEND */
+.legend {
+  position: absolute; bottom: 18px; right: 18px; z-index: 5;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px 16px; display: flex; flex-direction: column; gap: 7px;
+}
+.ltitle { font-size: 9px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 3px; }
+.li { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.ld { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* CITY LABEL on canvas (rendered via JS) */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Thomas · <em>Nordic Ecosystem</em></div>
+  <div class="hstats">
+    <div class="stat"><span class="sn" id="tc">0</span><span class="sl">Contacts</span></div>
+    <div class="stat"><span class="sn" id="cc">0</span><span class="sl">Cities</span></div>
+  </div>
+</header>
+
+<aside>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('add')">+ Add</button>
+    <button class="tab" onclick="switchTab('list')">Directory</button>
+  </div>
+
+  <!-- ADD TAB -->
+  <div class="tc active" id="tab-add">
+    <div class="fg"><label>Full Name *</label><input id="fn" placeholder="e.g. Jimmy Nielsen"></div>
+    <div class="fg"><label>Title</label><input id="ft" placeholder="e.g. General Partner"></div>
+    <div class="fg"><label>Firm / Company</label><input id="ff" placeholder="e.g. Heartcore Capital"></div>
+    <div class="fg"><label>Category *</label>
+      <select id="fc">
+        <option value="">Select category</option>
+        <option>VC</option><option>Founder</option><option>Angel</option>
+        <option>Operator</option><option>Scout</option>
+      </select>
+    </div>
+    <div class="fg"><label>City *</label>
+      <select id="fci">
+        <option value="">Select city</option>
+        <option>Copenhagen</option><option>Stockholm</option><option>Oslo</option>
+        <option>Helsinki</option><option>Malmö</option><option>Gothenburg</option>
+        <option>Aarhus</option><option>Berlin</option><option>London</option><option>Paris</option>
+      </select>
+    </div>
+    <button class="btn" onclick="addContact()">Add to network →</button>
+  </div>
+
+  <!-- LIST TAB -->
+  <div class="tc" id="tab-list">
+    <div>
+      <div class="ftitle">Filter</div>
+      <div class="chips">
+        <div class="chip active" data-cat="all" onclick="filterCat('all')">All</div>
+        <div class="chip" data-cat="VC" onclick="filterCat('VC')">VC</div>
+        <div class="chip" data-cat="Founder" onclick="filterCat('Founder')">Founder</div>
+        <div class="chip" data-cat="Angel" onclick="filterCat('Angel')">Angel</div>
+        <div class="chip" data-cat="Operator" onclick="filterCat('Operator')">Operator</div>
+        <div class="chip" data-cat="Scout" onclick="filterCat('Scout')">Scout</div>
+      </div>
+    </div>
+    <div class="clist" id="clist">
+      <div class="empty"><span>🕸️</span>Add your first contact<br>to build your network</div>
+    </div>
+  </div>
+</aside>
+
+<div class="canvas-wrap" id="canvaswrap">
+  <canvas id="cvs"></canvas>
+
+  <div id="tt">
+    <div class="ttn" id="ttn"></div>
+    <div class="ttt" id="ttt"></div>
+    <span class="ttc" id="ttc"></span>
+    <div class="ttcity" id="ttcity"></div>
+  </div>
+
+  <div class="legend">
+    <div class="ltitle">Category</div>
+    <div class="li"><div class="ld" style="background:#7eb8f7"></div>VC</div>
+    <div class="li"><div class="ld" style="background:#f4a0c0"></div>Founder</div>
+    <div class="li"><div class="ld" style="background:#f5d87a"></div>Angel</div>
+    <div class="li"><div class="ld" style="background:#6eddb0"></div>Operator</div>
+    <div class="li"><div class="ld" style="background:#b8a0f4"></div>Scout</div>
+  </div>
+</div>
+
+<script>
+const CAT_COLORS = {
+  VC: '#7eb8f7', Founder: '#f4a0c0', Angel: '#f5d87a',
+  Operator: '#6eddb0', Scout: '#b8a0f4'
+};
+
+// City hub positions (as fractions of canvas, set on resize)
+const CITY_ANCHORS = {
+  Copenhagen: { fx: 0.38, fy: 0.62 },
+  Stockholm:  { fx: 0.58, fy: 0.48 },
+  Oslo:       { fx: 0.30, fy: 0.44 },
+  Helsinki:   { fx: 0.75, fy: 0.45 },
+  Malmö:      { fx: 0.41, fy: 0.66 },
+  Gothenburg: { fx: 0.34, fy: 0.54 },
+  Aarhus:     { fx: 0.32, fy: 0.58 },
+  Berlin:     { fx: 0.46, fy: 0.78 },
+  London:     { fx: 0.14, fy: 0.72 },
+  Paris:      { fx: 0.20, fy: 0.84 },
+};
+
+let contacts = [];
+try { contacts = JSON.parse(localStorage.getItem('eco-net-v1') || '[]'); } catch(e) {}
+let af = 'all';
+let nodes = [];       // physics nodes
+let hoveredNode = null;
+let animFrame;
+let W, H;
+
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d');
+
+// ── RESIZE ──────────────────────────────────────────────
+function resize() {
+  const wrap = document.getElementById('canvaswrap');
+  W = wrap.clientWidth;
+  H = wrap.clientHeight;
+  cvs.width = W * devicePixelRatio;
+  cvs.height = H * devicePixelRatio;
+  cvs.style.width = W + 'px';
+  cvs.style.height = H + 'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  buildNodes();
+}
+window.addEventListener('resize', resize);
+
+// ── BUILD PHYSICS NODES ─────────────────────────────────
+function buildNodes() {
+  const filtered = af === 'all' ? contacts : contacts.filter(c => c.cat === af);
+
+  // City hub nodes
+  const cityNodes = {};
+  Object.entries(CITY_ANCHORS).forEach(([city, pos]) => {
+    const hasContacts = filtered.some(c => c.city === city);
+    cityNodes[city] = {
+      id: 'city_' + city,
+      type: 'city',
+      label: city,
+      x: pos.fx * W,
+      y: pos.fy * H,
+      vx: 0, vy: 0,
+      fx: pos.fx * W,  // fixed position
+      fy: pos.fy * H,
+      active: hasContacts,
+    };
+  });
+
+  // Contact nodes — start near their city
+  const contactNodes = filtered.map(c => {
+    const anchor = CITY_ANCHORS[c.city] || { fx: 0.5, fy: 0.5 };
+    const existing = nodes.find(n => n.id === 'c_' + c.id);
+    return {
+      id: 'c_' + c.id,
+      type: 'contact',
+      contact: c,
+      x: existing ? existing.x : anchor.fx * W + (Math.random() - 0.5) * 80,
+      y: existing ? existing.y : anchor.fy * H + (Math.random() - 0.5) * 80,
+      vx: existing ? existing.vx : 0,
+      vy: existing ? existing.vy : 0,
+    };
+  });
+
+  nodes = [...Object.values(cityNodes), ...contactNodes];
+}
+
+// ── PHYSICS TICK ─────────────────────────────────────────
+function tick() {
+  const cityNodes = nodes.filter(n => n.type === 'city');
+  const contactNodes = nodes.filter(n => n.type === 'contact');
+
+  contactNodes.forEach(n => {
+    // Spring toward city anchor
+    const city = CITY_ANCHORS[n.contact.city];
+    if (city) {
+      const tx = city.fx * W, ty = city.fy * H;
+      const dx = tx - n.x, dy = ty - n.y;
+      n.vx += dx * 0.018;
+      n.vy += dy * 0.018;
+    }
+
+    // Repel from other contact nodes
+    contactNodes.forEach(m => {
+      if (m === n) return;
+      const dx = n.x - m.x, dy = n.y - m.y;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      if (dist < 70) {
+        const force = (70 - dist) / dist * 0.4;
+        n.vx += dx * force;
+        n.vy += dy * force;
+      }
+    });
+
+    // Repel from city nodes
+    cityNodes.forEach(c => {
+      const dx = n.x - c.x, dy = n.y - c.y;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      if (dist < 55) {
+        const force = (55 - dist) / dist * 0.5;
+        n.vx += dx * force;
+        n.vy += dy * force;
+      }
+    });
+
+    // Dampen + apply
+    n.vx *= 0.82; n.vy *= 0.82;
+    n.x += n.vx; n.y += n.vy;
+
+    // Bounds
+    n.x = Math.max(20, Math.min(W - 20, n.x));
+    n.y = Math.max(20, Math.min(H - 20, n.y));
+  });
+}
+
+// ── DRAW ─────────────────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  const cityNodes = {};
+  nodes.filter(n => n.type === 'city').forEach(n => { cityNodes[n.label] = n; });
+  const contactNodes = nodes.filter(n => n.type === 'contact');
+
+  // Draw strings from contacts to their city hub
+  contactNodes.forEach(n => {
+    const hub = cityNodes[n.contact.city];
+    if (!hub) return;
+    const color = CAT_COLORS[n.contact.cat] || '#fff';
+    const isHovered = hoveredNode === n;
+    const alpha = isHovered ? 0.7 : 0.18;
+
+    ctx.beginPath();
+    ctx.moveTo(n.x, n.y);
+
+    // Slight curve via midpoint
+    const mx = (n.x + hub.x) / 2 + (Math.random() * 0 - 0); // straight for now
+    const my = (n.y + hub.y) / 2;
+    ctx.quadraticCurveTo(mx + (hub.y - n.y) * 0.05, my + (n.x - hub.x) * 0.05, hub.x, hub.y);
+
+    ctx.strokeStyle = color.replace(')', `, ${alpha})`).replace('rgb', 'rgba').replace('#', '');
+    // Parse hex properly
+    const r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+    ctx.lineWidth = isHovered ? 1.5 : 0.8;
+    ctx.stroke();
+  });
+
+  // Draw strings between cities that share contacts (cross-city connections)
+  const activeCities = Object.values(cityNodes).filter(c => c.active);
+  for (let i = 0; i < activeCities.length; i++) {
+    for (let j = i+1; j < activeCities.length; j++) {
+      const a = activeCities[i], b = activeCities[j];
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      // Slight arc
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      ctx.quadraticCurveTo(mx + (b.y - a.y) * 0.12, my - (b.x - a.x) * 0.12, b.x, b.y);
+      ctx.strokeStyle = 'rgba(232, 213, 163, 0.06)';
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+  }
+
+  // Draw city hubs
+  Object.values(cityNodes).forEach(n => {
+    const isActive = n.active;
+    const r = isActive ? 6 : 3.5;
+
+    // Glow for active
+    if (isActive) {
+      const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 22);
+      grad.addColorStop(0, 'rgba(232,213,163,0.12)');
+      grad.addColorStop(1, 'rgba(232,213,163,0)');
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 22, 0, Math.PI*2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, r, 0, Math.PI*2);
+    ctx.fillStyle = isActive ? 'rgba(232,213,163,0.85)' : 'rgba(255,255,255,0.12)';
+    ctx.fill();
+
+    // City label
+    ctx.font = isActive ? '500 10px DM Sans' : '400 9px DM Sans';
+    ctx.fillStyle = isActive ? 'rgba(232,213,163,0.8)' : 'rgba(255,255,255,0.2)';
+    ctx.textAlign = 'left';
+    ctx.fillText(n.label, n.x + 9, n.y + 4);
+  });
+
+  // Draw contact nodes
+  contactNodes.forEach(n => {
+    const color = CAT_COLORS[n.contact.cat] || '#fff';
+    const r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
+    const isHovered = hoveredNode === n;
+    const nodeR = isHovered ? 8 : 5.5;
+
+    // Glow
+    if (isHovered) {
+      const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 18);
+      grad.addColorStop(0, `rgba(${r},${g},${b},0.3)`);
+      grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 18, 0, Math.PI*2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    // Outer ring
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, nodeR + 1.5, 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${isHovered ? 0.5 : 0.2})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Node fill
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, nodeR, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(${r},${g},${b},${isHovered ? 0.95 : 0.75})`;
+    ctx.fill();
+
+    // Name label when hovered
+    if (isHovered) {
+      const label = n.contact.name;
+      ctx.font = '500 11px DM Sans';
+      const tw = ctx.measureText(label).width;
+      // Background pill
+      ctx.fillStyle = 'rgba(14,16,24,0.85)';
+      ctx.beginPath();
+      ctx.roundRect(n.x - tw/2 - 7, n.y - 28, tw + 14, 18, 4);
+      ctx.fill();
+      ctx.fillStyle = '#dde1ec';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, n.x, n.y - 15);
+    }
+  });
+}
+
+// ── LOOP ─────────────────────────────────────────────────
+function loop() {
+  tick();
+  draw();
+  animFrame = requestAnimationFrame(loop);
+}
+
+// ── MOUSE ─────────────────────────────────────────────────
+cvs.addEventListener('mousemove', e => {
+  const rect = cvs.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  let found = null;
+  nodes.filter(n => n.type === 'contact').forEach(n => {
+    const dx = mx - n.x, dy = my - n.y;
+    if (Math.sqrt(dx*dx + dy*dy) < 12) found = n;
+  });
+  hoveredNode = found;
+
+  if (found) {
+    const tt = document.getElementById('tt');
+    const c = found.contact;
+    document.getElementById('ttn').textContent = c.name;
+    document.getElementById('ttt').textContent = [c.title, c.firm].filter(Boolean).join(' · ');
+    const el = document.getElementById('ttc');
+    el.textContent = c.cat;
+    el.style.background = CAT_COLORS[c.cat];
+    document.getElementById('ttcity').textContent = '📍 ' + c.city;
+    tt.style.opacity = '1';
+    const wrap = document.getElementById('canvaswrap');
+    const wr = wrap.getBoundingClientRect();
+    let tx = e.clientX - wr.left + 16, ty = e.clientY - wr.top - 20;
+    if (tx + 210 > wr.width) tx -= 226;
+    if (ty < 0) ty = 10;
+    tt.style.left = tx + 'px';
+    tt.style.top = ty + 'px';
+    cvs.style.cursor = 'pointer';
+  } else {
+    document.getElementById('tt').style.opacity = '0';
+    cvs.style.cursor = 'default';
+  }
+});
+
+cvs.addEventListener('mouseleave', () => {
+  hoveredNode = null;
+  document.getElementById('tt').style.opacity = '0';
+});
+
+// ── DRAG ─────────────────────────────────────────────────
+let dragging = null, dragOffX = 0, dragOffY = 0;
+cvs.addEventListener('mousedown', e => {
+  const rect = cvs.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  nodes.filter(n => n.type === 'contact').forEach(n => {
+    const dx = mx - n.x, dy = my - n.y;
+    if (Math.sqrt(dx*dx + dy*dy) < 12) { dragging = n; dragOffX = dx; dragOffY = dy; }
+  });
+});
+cvs.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const rect = cvs.getBoundingClientRect();
+  dragging.x = e.clientX - rect.left - dragOffX;
+  dragging.y = e.clientY - rect.top - dragOffY;
+  dragging.vx = 0; dragging.vy = 0;
+});
+cvs.addEventListener('mouseup', () => { dragging = null; });
+
+// ── CRUD ─────────────────────────────────────────────────
+function addContact() {
+  const n = document.getElementById('fn').value.trim();
+  const t = document.getElementById('ft').value.trim();
+  const f = document.getElementById('ff').value.trim();
+  const c = document.getElementById('fc').value;
+  const ci = document.getElementById('fci').value;
+  if (!n || !c || !ci) { alert('Please fill in Name, Category and City.'); return; }
+  contacts.push({ id: Date.now(), name: n, title: t, firm: f, cat: c, city: ci });
+  save(); renderAll(); clearForm(); switchTab('list');
+}
+function deleteContact(id) {
+  contacts = contacts.filter(c => c.id !== id);
+  save(); renderAll();
+}
+function renderAll() {
+  buildNodes();
+  renderList();
+  updateStats();
+}
+function renderList() {
+  const list = document.getElementById('clist');
+  const filtered = af === 'all' ? contacts : contacts.filter(c => c.cat === af);
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty"><span>${af==='all'?'🕸️':'🔍'}</span>${af==='all'?'Add your first contact<br>to build your network':'No contacts in this category'}</div>`;
+    return;
+  }
+  // Group by city
+  const byCityMap = {};
+  filtered.forEach(c => { (byCityMap[c.city] = byCityMap[c.city] || []).push(c); });
+  list.innerHTML = Object.entries(byCityMap).map(([city, people]) => `
+    <div class="city-section">
+      <div class="city-header">${city} <span class="city-badge">${people.length}</span></div>
+      ${people.map(c => `
+        <div class="card" style="margin-top:5px">
+          <div class="ctop">
+            <div>
+              <div class="cn">${c.name}</div>
+              ${c.firm||c.title?`<div class="cf">${[c.title,c.firm].filter(Boolean).join(' · ')}</div>`:''}
+            </div>
+            <div class="cdot" style="background:${CAT_COLORS[c.cat]}"></div>
+          </div>
+          <button class="del" onclick="deleteContact(${c.id})">✕</button>
+        </div>`).join('')}
+    </div>`).join('');
+}
+function filterCat(cat) {
+  af = cat;
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.cat === cat));
+  renderAll();
+}
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0)===(tab==='add')));
+  document.getElementById('tab-add').classList.toggle('active', tab==='add');
+  document.getElementById('tab-list').classList.toggle('active', tab==='list');
+}
+function updateStats() {
+  document.getElementById('tc').textContent = contacts.length;
+  document.getElementById('cc').textContent = new Set(contacts.map(c => c.city)).size;
+}
+function clearForm() {
+  ['fn','ft','ff'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fc').value = '';
+  document.getElementById('fci').value = '';
+}
+function save() { try { localStorage.setItem('eco-net-v1', JSON.stringify(contacts)); } catch(e) {} }
+
+// ── BOOT ─────────────────────────────────────────────────
+resize();
+loop();
+</script>
+</body>
+</html>
