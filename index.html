@@ -304,71 +304,36 @@ function buildNodes() {
     };
   });
 
-  // Contact nodes — start near their city
+  // Contact nodes — placed evenly around their city hub
+  const cityContactCount = {};
+  contacts.forEach(c => { cityContactCount[c.city] = (cityContactCount[c.city] || 0) + 1; });
+  const cityContactIndex = {};
+
   const contactNodes = filtered.map(c => {
     const anchor = CITY_ANCHORS[c.city] || { fx: 0.5, fy: 0.5 };
     const existing = nodes.find(n => n.id === 'c_' + c.id);
+    if (existing) return { ...existing, x: existing._savedX || existing.x, y: existing._savedY || existing.y };
+
+    // Place evenly in a circle around city hub
+    const total = cityContactCount[c.city] || 1;
+    const idx = cityContactIndex[c.city] || 0;
+    cityContactIndex[c.city] = idx + 1;
+    const angle = (idx / total) * 2 * Math.PI - Math.PI / 2;
+    const radius = 55 + Math.floor(idx / 8) * 30;
     return {
       id: 'c_' + c.id,
       type: 'contact',
       contact: c,
-      x: existing ? existing.x : anchor.fx * W + (Math.random() - 0.5) * 80,
-      y: existing ? existing.y : anchor.fy * H + (Math.random() - 0.5) * 80,
-      vx: existing ? existing.vx : 0,
-      vy: existing ? existing.vy : 0,
+      x: anchor.fx * W + Math.cos(angle) * radius,
+      y: anchor.fy * H + Math.sin(angle) * radius,
+      vx: 0, vy: 0,
     };
   });
 
   nodes = [...Object.values(cityNodes), ...contactNodes];
 }
 
-// ── PHYSICS TICK ─────────────────────────────────────────
-function tick() {
-  const cityNodes = nodes.filter(n => n.type === 'city');
-  const contactNodes = nodes.filter(n => n.type === 'contact');
-
-  contactNodes.forEach(n => {
-    // Spring toward city anchor
-    const city = CITY_ANCHORS[n.contact.city];
-    if (city) {
-      const tx = city.fx * W, ty = city.fy * H;
-      const dx = tx - n.x, dy = ty - n.y;
-      n.vx += dx * 0.018;
-      n.vy += dy * 0.018;
-    }
-
-    // Repel from other contact nodes
-    contactNodes.forEach(m => {
-      if (m === n) return;
-      const dx = n.x - m.x, dy = n.y - m.y;
-      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      if (dist < 70) {
-        const force = (70 - dist) / dist * 0.4;
-        n.vx += dx * force;
-        n.vy += dy * force;
-      }
-    });
-
-    // Repel from city nodes
-    cityNodes.forEach(c => {
-      const dx = n.x - c.x, dy = n.y - c.y;
-      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      if (dist < 55) {
-        const force = (55 - dist) / dist * 0.5;
-        n.vx += dx * force;
-        n.vy += dy * force;
-      }
-    });
-
-    // Dampen + apply
-    n.vx *= 0.82; n.vy *= 0.82;
-    n.x += n.vx; n.y += n.vy;
-
-    // Bounds
-    n.x = Math.max(20, Math.min(W - 20, n.x));
-    n.y = Math.max(20, Math.min(H - 20, n.y));
-  });
-}
+// ── NO PHYSICS — nodes are static, only move on drag ─────
 
 // ── DRAW ─────────────────────────────────────────────────
 function draw() {
@@ -496,7 +461,6 @@ function draw() {
 
 // ── LOOP ─────────────────────────────────────────────────
 function loop() {
-  tick();
   draw();
   animFrame = requestAnimationFrame(loop);
 }
@@ -554,11 +518,18 @@ cvs.addEventListener('mousedown', e => {
 cvs.addEventListener('mousemove', e => {
   if (!dragging) return;
   const rect = cvs.getBoundingClientRect();
-  dragging.x = e.clientX - rect.left - dragOffX;
-  dragging.y = e.clientY - rect.top - dragOffY;
-  dragging.vx = 0; dragging.vy = 0;
+  dragging.x = Math.max(10, Math.min(W-10, e.clientX - rect.left - dragOffX));
+  dragging.y = Math.max(10, Math.min(H-10, e.clientY - rect.top - dragOffY));
 });
-cvs.addEventListener('mouseup', () => { dragging = null; });
+cvs.addEventListener('mouseup', () => {
+  if (dragging) {
+    // Persist position back to contact record so it survives re-renders
+    dragging._savedX = dragging.x;
+    dragging._savedY = dragging.y;
+    dragging = null;
+  }
+});
+cvs.addEventListener('mouseleave', () => { dragging = null; });
 
 // ── CRUD ─────────────────────────────────────────────────
 function addContact() {
